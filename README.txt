@@ -1,4 +1,4 @@
-Welcome to uploadnewip
+Welcome to uploadnewip by BobyMCbobs
 
 This program is the server side version for uploading your external IP to Dropbox.
 
@@ -40,3 +40,5 @@ This program is the server side version for uploading your external IP to Dropbo
    - Remove
      - The systemd service
      - uploadnewip inside of said scripts folder.
+
+Enjoy.
