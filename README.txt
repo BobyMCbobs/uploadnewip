@@ -1,13 +1,10 @@
-Welcome to uploadnewip by BobyMCbobs
+Welcome to uploadnewip
 
 This program is the server side version for uploading your external IP to Dropbox.
-This program works well when paired with getnewip (for client side).
-
-This has been tested on Linux (Raspbian, Ubuntu), unsure about FreeBSD or MacOS support.
 
 -- Installing --
 
-  Run './install.sh' (or 'bash install.sh') and follow the instructions. -- You'll need to setup the configuration, however. Edit uploadnewip.config.
+  Run './install.sh' and follow the instructions. -- You'll need to setup the configuration, however. Edit uploadnewip.config.
 
   -- Configurations --
 
@@ -35,7 +32,7 @@ This has been tested on Linux (Raspbian, Ubuntu), unsure about FreeBSD or MacOS 
     The Dropbox key is required for uploading to Dropbox.
     You must create a Dropbox app over at https://www.dropbox.com/developers/apps, then click generate OAuth2 access token. Use this token/key in your config.
 
--- Removing --
+-- Removing and Upgrading --
 
   Run './install -r'. You'll get an option to remove via config, or input your custom removal variables.
   This will:
@@ -44,4 +41,4 @@ This has been tested on Linux (Raspbian, Ubuntu), unsure about FreeBSD or MacOS 
      - The systemd service
      - uploadnewip inside of said scripts folder.
 
-Enjoy.
+  After removal, simply download a new copy and reinstall for upgrading.
