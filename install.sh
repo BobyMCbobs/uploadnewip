@@ -111,6 +111,7 @@ function edit_prog() {
   - Systemd service is '$systemd_service_install'.
   - Dropbox authentication key is '$dropbox_key'.
 
+Make sure there are no empty entries. Edit uploadnewip.config.
 Continue? [y|n]"
   read continue_var
 
