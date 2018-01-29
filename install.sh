@@ -143,7 +143,7 @@ function set_in_place() {
   holding_folder="$scriptsFolder/uploadnewip"
 
   echo "> Setting in place."
-  if cp uploadnewip-$purpose_name-temp $holding_folder/uploadnewip-$purpose_name
+  if cp uploadnewip-$purpose_name-temp $holding_folder/uploadnewip-$purpose_name && chmod +x $holding_folder/uploadnewip-$purpose_name
 	then
 		if [ ! $systemd_service_install = "n" ]
 		then
