@@ -49,7 +49,7 @@ function required_stuff() {
 		fi
 	fi
 
-	if ! $scriptsFolder/dropbox_uploader.sh list | grep -w $dbFolder > /dev/null && [ $dbFolder = "" ]
+	if ! $scriptsFolder/dropbox_uploader.sh list | grep -w $dbFolder > /dev/null
 	then
 		echo "> Dropbox folder '$dbFolder' not found. Creating it."
 		$scriptsFolder/dropbox_uploader.sh mkdir $dbFolder
@@ -81,7 +81,7 @@ function main() {
 			successful
 		fi
 
-		if [ $first_var = "-n" ]
+		if [[ $first_var = "-n" ]]
 		then
 			echo "> Updating anyways"
 			successful
@@ -131,5 +131,6 @@ required_stuff
 while true
 do
 	main
+	echo "> Now waiting $loopDelayTime seconds."
 	sleep $loopDelayTime$(echo s)
 done
