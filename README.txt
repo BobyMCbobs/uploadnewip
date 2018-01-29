@@ -5,7 +5,7 @@ This program works well when paired with getnewip (for client side).
 
 -- Installing --
 
-  Run './install.sh' and follow the instructions. -- You'll need to setup the configuration, however. Edit uploadnewip.config.
+  Run './install.sh' (or 'bash install.sh') and follow the instructions. -- You'll need to setup the configuration, however. Edit uploadnewip.config.
 
   -- Configurations --
 
