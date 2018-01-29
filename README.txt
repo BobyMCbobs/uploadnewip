@@ -1,6 +1,7 @@
 Welcome to uploadnewip by BobyMCbobs
 
 This program is the server side version for uploading your external IP to Dropbox.
+This program works well when paired with getnewip (for client side).
 
 -- Installing --
 
