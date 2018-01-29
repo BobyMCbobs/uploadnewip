@@ -3,6 +3,8 @@ Welcome to uploadnewip by BobyMCbobs
 This program is the server side version for uploading your external IP to Dropbox.
 This program works well when paired with getnewip (for client side).
 
+This has been tested on Linux (Raspbian, Ubuntu), unsure about FreeBSD or MacOS support.
+
 -- Installing --
 
   Run './install.sh' (or 'bash install.sh') and follow the instructions. -- You'll need to setup the configuration, however. Edit uploadnewip.config.
