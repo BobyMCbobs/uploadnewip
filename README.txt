@@ -42,3 +42,7 @@ This program is the server side version for uploading your external IP to Dropbo
      - uploadnewip inside of said scripts folder.
 
   After removal, simply download a new copy and reinstall for upgrading.
+  
+-- Notes --
+
+  This program uses https://github.com/andreafabrizi/Dropbox-Uploader to upload to Dropbox. Thanks to Andrea Fabrizi for this.
