@@ -9,12 +9,12 @@ Utilising Dropbox as a middle man for storing IP addresses, uploadnewip uploads 
 To build into a debian package, run `make` or `sudo make` (depending on your permissions) inside of the cloned repo.
 
 ##### Installation
-a. Through apt:  `apt install ./uploadnewip.deb`
-b. Through dpkg: `dpkg -i  ./uploadnewip.deb`
+a. Through apt:  `apt install ./uploadnewip.deb`      
+b. Through dpkg: `dpkg -i  ./uploadnewip.deb`      
 
 ##### Usage
-Standard use: `sudo uploadnewip [ARGS]`
-Help: `uploadnewip -h`
+Standard use: `sudo uploadnewip [ARGS]`       
+Help: `uploadnewip -h`       
 
 ##### Dropbox app
 1. Go to [Dropbox app](https://www.dropbox.com/developers/apps) page
