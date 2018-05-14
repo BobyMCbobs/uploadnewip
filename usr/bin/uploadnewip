@@ -1,0 +1,445 @@
+#!/bin/bash
+
+
+# uploadnewip
+
+#
+# Copyright (C) 2018 Caleb Woodbine <github.com/BobyMCbobs>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+#
+
+VERSION=2.0
+opt=$1
+
+function dbmkdir() {
+# make directory in dropbox filesystem
+
+local opt
+opt=$@
+
+curl --progress-bar -X POST -L -s --show-error --globoff -i -o "/tmp/uploadnewip-response-$RANDOM-temp" --header "Authorization: Bearer $dropboxAppKey" --header "Content-Type: application/json" --data "{\"path\": \"/$opt\"}" "https://api.dropboxapi.com/2/files/create_folder" 2> /dev/null
+
+checkHttpResponse
+
+}
+
+function dbupload() {
+# upload file to dropbox filesystem
+
+local opt1 opt2
+opt1=$1
+opt2=$2
+
+curl --progress-bar -X POST -i --globoff -o "/tmp/uploadnewip-response-$RANDOM-temp" --header "Authorization: Bearer $dropboxAppKey" --header "Dropbox-API-Arg: {\"path\": \"/$dbFolder/currentip-$uniUnit.txt\",\"mode\": \"overwrite\",\"autorename\": true,\"mute\": false}" --header "Content-Type: application/octet-stream" --data-binary @"$currentIPPos" "https://content.dropboxapi.com/2/files/upload"
+
+checkHttpResponse
+
+}
+
+function dbdownload() {
+# download file from dropbox filesystem
+
+curl --progress-bar -X POST --globoff -D "/tmp/uploadnewip-response-$RANDOM-temp" -o "/tmp/uploadnewip-$uniUnit-tmp.txt" --header "Authorization: Bearer $dropboxAppKey" --header "Dropbox-API-Arg: {\"path\": \"/$dbFolder/currentip-$uniUnit.txt\"}" "https://content.dropboxapi.com/2/files/download"
+
+checkHttpResponse
+
+}
+
+function dbdelete() {
+# delete file in dropbox filesystem
+
+local opt
+opt=$@
+
+curl --progress-bar -X POST -L -s --show-error --globoff -i -o "/tmp/uploadnewip-response-$RANDOM-temp" --header "Authorization: Bearer $dropboxAppKey" --header "Content-Type: application/json" --data "{\"path\": \"/$dbFolder/currentip-$uniUnit.txt\"}" "https://api.dropboxapi.com/2/files/delete" 2> /dev/null
+
+checkHttpResponse
+
+}
+
+function checkHttpResponse() {
+# verify if response was successful
+
+local response
+response=$?
+
+if [ ! $response = 0 ]
+then
+	echo ">> Failed to access dropbox in some way."
+fi
+
+rm /tmp/uploadnewip-response-*-temp
+
+}
+
+function getDefaultUnitConfig() {
+# generate default config
+
+echo "uniUnit=''	## home, mainServer. Give this unit a pretty name.
+dbFolder=''		## folder in dropbox which uploadnewip will upload to.
+pingServer=''		## an always up server that when ping'ed will confirm connection to internet.
+dropboxAppKey=''	## dropbox app key -- 64 character string."
+
+}
+
+function makeNewConfigUnit() {
+# create a new unit file
+
+if [ ! -f $tempFile ] || [ -z $tempFile ]
+then
+	tempFile="/tmp/uploadnewip-unit-$RANDOM$RANDOM-temp"
+	getDefaultUnitConfig > $tempFile
+fi
+
+nano $tempFile
+
+echo "	0) Re-[e]dit config file again.
+	1) [R]estart.
+	2) [S]ave and exit.
+	q) [Q]uit without saving.
+"
+
+read -p ": " continuevar
+echo
+case $continuevar in
+	0|e|E)
+		makeNewConfigUnit
+	;;
+
+	1|r|R)
+		[ -f $tempFile ] && rm $tempFile && echo "> Cleaned up temporary files."
+		tempFile=
+		makeNewConfigUnit
+	;;
+
+	2|s|S)
+		if . $tempFile && variableCheck a
+		then
+			[ -f /etc/uploadnewip/units/$uniUnit.conf ] && echo ">> '$uniUnit.conf' already exists. Exiting..." && exit 1
+			install -g $(whoami) -o $(whoami) -m 0600 $tempFile /etc/uploadnewip/units/$uniUnit.conf && echo "> Config '$uniUnit' saved." && rm $tempFile && exit 0
+			echo ">> Failed to write config." && [ -f $tempFile ] && rm $tempFile && echo "> Cleaned up temporary files."  && exit 1
+		else
+			echo ">> Variables not set correctly. Please fix them." && sleep 1 && makeNewConfigUnit
+		fi
+	;;
+
+	q|Q)
+		[ -f $tempFile ] && rm $tempFile && echo "> Cleaned up temporary files."
+		exit 0
+	;;
+esac
+
+}
+
+function variableCheck() {
+# check for empty variables in config file
+
+local opt users host
+opt=$@
+
+local var
+if [[ -z $uniUnit || -z $dbFolder || -z $dropboxAppKey ]]
+then
+	[ -z $opt ] && echo ">> Please fill in all required variabled -- Edit '/etc/uploadnewip/units/$configFile'."
+	return 1
+else
+	return 0
+fi
+
+}
+
+function cleanVariables() {
+# clean variables between checks
+
+uniUnit=
+dbFolder=
+dropboxAppKey=
+
+}
+
+function loadUnits() {
+
+local unit count
+count=0
+
+for unit in $(ls /etc/uploadnewip/units)
+do
+	count=$((count+=1))
+	if ! echo ${disabledUnits[@]} | grep -q $unit
+	then
+		cleanVariables
+		. /etc/uploadnewip/units/$unit
+		echo "> Running unit '$unit'."
+		main
+	fi
+done
+
+[ $count = 0 ] && echo ">> No units available. Please create one -- Run 'uploadnewip -m' to do so. Otherwise, for help on creating units run 'uploadnewip -h config'." && exit 1
+
+}
+
+function main() {
+# main routine	
+		
+serverIPFolder="/var/cache/uploadnewip"
+tempIPPos="$serverIPFolder/temp/temp-ip-$uniUnit.txt"
+currentIPPos="$serverIPFolder/currentip-$uniUnit.txt"
+
+if pingTest
+then
+	echo "> Checking against fresh IP from '$fetchIPServer'"
+	curl $fetchIPServer | cat > $tempIPPos
+	echo "> Verifying"
+
+	if [ -f $currentIPPos ]
+	then
+		chk1=$(sha256sum $tempIPPos | awk '{print $1}')
+		chk2=$(sha256sum $currentIPPos | awk '{print $1}')
+
+		if [ "$chk1" == "$chk2" ] && [ -f $currentIPPos ]
+		then
+			#hasn't changed
+			echo ">> IP hasn't changed."
+		else
+			#has changed
+			echo "> IP has changed."
+			mv $tempIPPos $currentIPPos
+			[ -f $currentIPPos ] && uploadContinue || echo ">> Unable to find '$currentIPPos'."
+		fi
+
+		if [[ $opt = "-n" ]]
+		then
+			echo "> Updating anyways"
+			uploadContinue
+		fi
+	else
+		echo "> Running for first time."
+		mv $tempIPPos $currentIPPos
+		[ -f $currentIPPos ] && uploadContinue || echo ">> Unable to find '$currentIPPos'."
+	fi
+
+else
+	echo ">> Unable to upload IP due to possible lack of internet connection.."
+fi
+
+}
+
+function pingTest() {
+# test internet
+
+echo "> Running a quick ping test to '$pingServer' to test internet."
+if ping -q -c 1 -W 1 $pingServer > /dev/null
+then
+  	#if internet is up
+	echo "> Internet is connected, continuing."
+	return 0
+
+else
+  	#if internet is down
+	echo ">> No internet."
+	return 1
+fi
+}
+
+function uploadContinue() {
+# upload to dropbox.
+
+local tempFile outIP
+tempFile="/tmp/uploadnewip-$RANDOM-tmp"
+echo "> Updating Dropbox files..."
+echo "> Removing old IP file..."
+
+dbmkdir $dbFolder
+
+dbdelete
+
+echo "> Uploading 'currentip-$uniUnit.txt' to Dropbox folder '$dbFolder'."
+if dbupload
+then
+	outIP=$(cat $currentIPPos)
+	[ $logging ] && echo "'$uniUnit' IP has updated to $outIP at $(date) (automatically)." | tee -a /var/log/uploadnewip.log
+	echo "> Done."
+else
+	echo ">> Upload failed."
+fi
+}
+
+function helpMenu() {
+# print help menu and given options
+
+local opt
+opt=$@
+
+case $opt in
+	config)
+echo "
+How to setup config files
+-------------------------
+
+Every variable in the config files is important, unless regarded otherwise.
+
+1 EASIEST) Run 'uploadnewip -m'.
+
+2 Easy) Make a copy of '/etc/uploadnewip/uploadnewip-example.conf' into
+	   '/etc/uploadnewip/units/' as a new config file, and customise variables.
+"
+	;;
+
+	service)
+echo "
+Systemd service info
+--------------------
+
+Default setup:
+	By default, the service will
+		- run as root.
+		- run over all config files.
+		- be DISABLED.
+
+Location:
+	The service file is located at 'etc/systemd/system/uploadnewip.service'.
+	Note: You may need to reload the daemons after editing.
+
+Control service:
+	Enable: 'systemctl enable uploadnewip'.
+	Start:'systemctl start uploadnewip'.
+	Status: 'systemctl status uploadnewip'.
+"
+	;;
+
+	*)
+echo "
+uploadnewip (version $VERSION)
+---------------------
+Usage: uploadnewip -[n,s,t] [config file]
+
+Running Modes:
+	-s|--single|-o|--once 		to not loop.
+	-l|--list			list available config files.
+	-m|--make			make a unit config file.
+	-h|--help			print this menu.
+	  	  config		  get info on config files.
+		  service		  get info on systemd service.
+
+Config files:
+	Units:
+		You can call a config file in '/etc/uploadnewip/units' to run it.
+
+	Settings:
+		uploadnewip settings config is located at '/etc/uploadnewip/uploadnewip-settings.conf'.
+
+Notes:
+	- This program need root to run, because of where it writes to, and for security/private reasons relating to dropbox keys.
+"
+	;;
+
+esac
+
+}
+
+function listConfigUnits() {
+# output list of available units
+
+local unit opt out counter
+opt=$@
+counter=0
+
+[ ! -d /etc/uploadnewip/units ] && echo ">> Failed to find units folder."
+
+for unit in $(ls /etc/uploadnewip/units)
+do
+	counter=$((counter+=1))
+	out="$unit $out"
+done
+
+if [ -z $opt ]
+then
+	if [ $counter = 0 ]
+	then
+		helpMenu
+		echo ">> No units available. Please create one. 'uploadnewip -h config' for help, 'uploadnewip -m' to make one."
+
+	elif [ $counter = 1 ]
+	then
+		echo "$counter available unit: $out"
+	else
+		echo "$counter available units: $out"
+	fi
+else
+	echo "$out"
+fi
+
+}
+
+function sudoChecker() {
+# check if user is root
+
+if [ ! $(id -u) = 0 ]
+then
+	echo ">> You must be root to use some this program."
+	echo "> Run 'uploadnewip -h' for help."
+	exit 1
+fi
+
+}
+
+function loopInit() {
+# loop main function
+
+while true
+do
+	loadUnits
+	echo "> Now waiting $loopDelayTime."
+	sleep $loopDelayTime
+done
+
+}
+
+if [ -f /etc/uploadnewip/uploadnewip-settings.conf ]
+then
+	. /etc/uploadnewip/uploadnewip-settings.conf
+else
+	echo ">> Failed to find settings config."
+	exit 1
+fi
+
+[[ -f /tmp/uploadnewip-response-*-temp ]] && rm /tmp/uploadnewip-response-*-temp && echo "> Removed left over temp files."
+
+case $opt in
+	-h|--help)
+		helpMenu
+	;;
+
+	-m|--make-unit)
+		sudoChecker
+		makeNewConfigUnit
+	;;
+
+	-s|--single|-o|--once)	
+		sudoChecker
+		loadUnits
+	;;
+
+	-l|--list)
+		sudoChecker
+		listConfigUnits
+	;;
+
+	*)
+		sudoChecker
+		loopInit
+	;;
+esac

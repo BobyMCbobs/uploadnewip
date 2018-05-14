@@ -1,0 +1,2 @@
+systemctl stop uploadnewip
+systemctl disable uploadnewip

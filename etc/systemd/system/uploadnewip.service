@@ -1,0 +1,13 @@
+[Unit]
+Description=Simple program to check if external IP has changed, then uploading it to DropBox, if so.
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root
+ExecStart=/usr/bin/uploadnewip
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
