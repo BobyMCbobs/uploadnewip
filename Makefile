@@ -1,8 +1,11 @@
 all:
 	mkdir uploadnewip
-	sudo cp -r --no-preserve=ownership DEBIAN etc usr var uploadnewip
+	fakeroot -u cp -r --no-preserve=ownership DEBIAN etc usr var uploadnewip
 	dpkg-deb --build uploadnewip
-	sudo rm -r uploadnewip
+	fakeroot -u rm -r uploadnewip
 
 clean:
-	sudo rm -r uploadnewip*
+	fakeroot -u rm -r uploadnewip*
+
+install:
+	apt install ./uploadnewip.deb

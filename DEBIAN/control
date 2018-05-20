@@ -2,7 +2,7 @@ Source: uploadnewip
 Package: uploadnewip
 Priority: optional
 Maintainer: github.com/BobyMCbobs
-Version: 2.0
+Version: 2.1
 Architecture: all
 Installed-Size: 220.2 kB
 Depends: curl, bash
