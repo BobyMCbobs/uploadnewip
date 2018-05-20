@@ -269,7 +269,11 @@ then
 	return 1
 else
 	[ ! ${#dropboxAppKey} = 64 ] && echo ">> Dropbox key invalid." && return 1
-	pingTest || echo ">> Cannot reach '$pingServer'." && return 1
+	if ! pingTest
+		echo ">> Cannot reach '$pingServer'."
+	else
+		return 1
+	fi
 	return 0
 fi
 
