@@ -10,9 +10,9 @@ Dependencies: fakeroot
 To build into a debian package, run `make` inside of the cloned repo.
 
 ##### Installation
-a. Though make:  `sudo make install`
-b. Through apt:  `apt install ./uploadnewip.deb`      
-c. Through dpkg: `dpkg -i  ./uploadnewip.deb`      
+a. Though make:  `sudo make install`      
+b. Through apt:  `apt install ./uploadnewip.deb`        
+c. Through dpkg: `dpkg -i  ./uploadnewip.deb`       
 
 ##### Usage
 `sudo uploadnewip [ARGS]`   
