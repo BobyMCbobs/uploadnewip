@@ -11,6 +11,7 @@ install:
 	@touch $(DESTDIR)/var/log/uploadnewip.log
 	@chmod 755 $(DESTDIR)$(PREFIX)/bin/uploadnewip
 	@chmod 755 $(DESTDIR)$(COMPLETIONDIR)/uploadnewip
+	@mkdir -p $(DESTDIR)/etc/uploadnewip/units
 
 uninstall:
 	@rm -rf $(DESTDIR)$(PREFIX)/bin/uploadnewip
