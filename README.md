@@ -7,7 +7,7 @@ Utilising Dropbox as a middle man for storing IP addresses, uploadnewip uploads 
 On Arch Linux? Get it from the [AUR](https://aur.archlinux.org/packages/uploadnewip)  
 
 ##### Building
-Debian based: `make deb` (Dependencies: fakeroot)  
+Debian based: `make deb`  
 
 ##### Installation
 Standard installation: `make install`  
