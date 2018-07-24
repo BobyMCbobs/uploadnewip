@@ -1,9 +1,11 @@
 Source: uploadnewip
-Package: uploadnewip
+Section: utils
 Priority: optional
-Maintainer: https://gitlab.com/BobyMCbobs
-Version: 2.2
+Maintainer: Caleb Woodbine <calebwoodbine.public@gmail.com>
+Standards-Version: 2.2.0
+Build-Depends: debhelper (>= 9)
+
+Package: uploadnewip
 Architecture: all
-Installed-Size: 220.2 kB
 Depends: curl, bash
 Description: Upload new dynamic public IP address of a GNU/Linux server to Dropbox every time it changes

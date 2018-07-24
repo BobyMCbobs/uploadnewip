@@ -22,17 +22,20 @@ uninstall:
 	@rm -rf $(DESTDIR)/etc/systemd/systemd/uploadnewip.service
 	@rm -rf $(DESTDIR)/var/log/uploadnewip.log
 
-deb:
-	@mkdir build
-	@make DESTDIR=build install
-	@cp -r support/debian build/DEBIAN
-	@sudo chown -R root:root build
-	@dpkg-deb --build build
-	@sudo chown -R $$(whoami):$$(whoami) build
-	@mv build.deb uploadnewip.deb
+prep-deb:
+	@mkdir -p build/uploadnewip
+	@cp -r support/debian build/uploadnewip/debian
+	@mkdir build/uploadnewip/debian/uploadnewip
+	@make DESTDIR=build/uploadnewip/debian/uploadnewip install
+
+deb-pkg: prep-deb
+	@cd build/uploadnewip && debuild -b
+
+deb-src: prep-deb
+	@cd build/uploadnewip && debuild -S
 
 clean:
-	@rm -r build uploadnewip.deb
+	@rm -r build
 
 help:
 	@echo "Read 'README.md' for info on building."
