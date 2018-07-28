@@ -39,3 +39,4 @@ Generate a config unit: `uploadnewip -m`
 ##### Notes
 - This has been testing on GNU/Linux distributions: Arch Linux, CentOS (7), Debian (9.x), Fedora (28), openSUSE (Leap 15, Tumbleweed), Raspbian (9.x), and Ubuntu (16.04, 18.04).  
 - Currently only supports Systemd, no plans currently otherwise.  
+- Main repository is on [GitLab](https://gitlab.com/BobyMCbobs/uploadnewip). There is a [GitHub](https://github.com/BobyMCbobs/uploadnewip) mirror.
