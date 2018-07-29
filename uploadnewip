@@ -101,7 +101,7 @@ Amount of time until curl requests drops:
 
 	*)
 echo "---------------------
-Usage: uploadnewip -[n,s,t] [config file]
+Usage: uploadnewip -[OPT] [UNIT]
 
 Running Modes:
 	-s|--single|-o|--once 		perform a single check and exit.
@@ -162,7 +162,7 @@ function dbmkdir() {
 local opt
 opt=$@
 
-curl -m $curlTimeoutTime --progress-bar -X POST -L -s --show-error --globoff -i -o "/tmp/uploadnewip-response-$RANDOM-temp" --header "Authorization: Bearer $dropboxAppKey" --header "Content-Type: application/json" --data "{\"path\": \"/$opt\"}" "https://api.dropboxapi.com/2/files/create_folder" 2> /dev/null
+curl -m "$curlTimeoutTime" --progress-bar -X POST -L -s --show-error --globoff -i -o "/tmp/uploadnewip-response-$RANDOM-temp" --header "Authorization: Bearer $dropboxAppKey" --header "Content-Type: application/json" --data "{\"path\": \"/$opt\"}" "https://api.dropboxapi.com/2/files/create_folder" 2> /dev/null
 checkHttpResponse
 
 }
@@ -170,11 +170,7 @@ checkHttpResponse
 function dbupload() {
 # upload file to dropbox filesystem
 
-local opt1 opt2
-opt1=$1
-opt2=$2
-
-curl -m $curlTimeoutTime --progress-bar -X POST -i --globoff -o "/tmp/uploadnewip-response-$RANDOM-temp" --header "Authorization: Bearer $dropboxAppKey" --header "Dropbox-API-Arg: {\"path\": \"/$dbFolder/currentip-$unitName.txt\",\"mode\": \"overwrite\",\"autorename\": true,\"mute\": false}" --header "Content-Type: application/octet-stream" --data-binary @"$currentIPPos" "https://content.dropboxapi.com/2/files/upload"
+curl -m "$curlTimeoutTime" --progress-bar -X POST -i --globoff -o "/tmp/uploadnewip-response-$RANDOM-temp" --header "Authorization: Bearer $dropboxAppKey" --header "Dropbox-API-Arg: {\"path\": \"/$dbFolder/currentip-$unitName.txt\",\"mode\": \"overwrite\",\"autorename\": true,\"mute\": false}" --header "Content-Type: application/octet-stream" --data-binary @"$currentIPPos" "https://content.dropboxapi.com/2/files/upload"
 checkHttpResponse
 
 }
@@ -182,7 +178,7 @@ checkHttpResponse
 function dbdownload() {
 # download file from dropbox filesystem
 
-curl -m $curlTimeoutTime --progress-bar -X POST --globoff -D "/tmp/uploadnewip-response-$RANDOM-temp" -o "/tmp/uploadnewip-$unitName-tmp.txt" --header "Authorization: Bearer $dropboxAppKey" --header "Dropbox-API-Arg: {\"path\": \"/$dbFolder/currentip-$unitName.txt\"}" "https://content.dropboxapi.com/2/files/download"
+curl -m "$curlTimeoutTime" --progress-bar -X POST --globoff -D "/tmp/uploadnewip-response-$RANDOM-temp" -o "/tmp/uploadnewip-$unitName-tmp.txt" --header "Authorization: Bearer $dropboxAppKey" --header "Dropbox-API-Arg: {\"path\": \"/$dbFolder/currentip-$unitName.txt\"}" "https://content.dropboxapi.com/2/files/download"
 checkHttpResponse
 
 }
@@ -190,10 +186,7 @@ checkHttpResponse
 function dbdelete() {
 # delete file in dropbox filesystem
 
-local opt
-opt="$@"
-
-curl -m $curlTimeoutTime --progress-bar -X POST -L -s --show-error --globoff -i -o "/tmp/uploadnewip-response-$RANDOM-temp" --header "Authorization: Bearer $dropboxAppKey" --header "Content-Type: application/json" --data "{\"path\": \"/$dbFolder/currentip-$unitName.txt\"}" "https://api.dropboxapi.com/2/files/delete" 2> /dev/null
+curl -m "$curlTimeoutTime" --progress-bar -X POST -L -s --show-error --globoff -i -o "/tmp/uploadnewip-response-$RANDOM-temp" --header "Authorization: Bearer $dropboxAppKey" --header "Content-Type: application/json" --data "{\"path\": \"/$dbFolder/currentip-$unitName.txt\"}" "https://api.dropboxapi.com/2/files/delete" 2> /dev/null
 checkHttpResponse
 
 }
@@ -228,7 +221,7 @@ done
 function makeNewConfigUnit() {
 # create a new unit file
 
-if [ ! -f $tempFile ] || [ -z $tempFile ]
+if [ ! -f "$tempFile" ] || [ -z "$tempFile" ]
 then
 	tempFile="/tmp/uploadnewip-unit-$RANDOM$RANDOM-temp"
 	getDefaultUnitConfig > $tempFile
@@ -244,23 +237,35 @@ echo "	0) [E]dit config file again.
 
 read -r -p ": " continuevar
 echo
-case $continuevar in
+case "$continuevar" in
 	0|e|E)
 		makeNewConfigUnit
 	;;
 
 	1|r|R)
-		[ -f $tempFile ] && rm $tempFile && echo "> Cleaned up temporary files."
+		[ -f "$tempFile" ] && rm "$tempFile" && echo "> Cleaned up temporary files."
 		tempFile=
 		makeNewConfigUnit
 	;;
 
 	2|s|S)
-		if . $tempFile && variableCheck a
+		if . "$tempFile" && variableCheck a
 		then
-			[ -f /etc/uploadnewip/units/$unitName.conf ] && echo ">> '$unitName.conf' already exists. Exiting..." && exit 1
-			install -g root -o "$USER" -m 0600 $tempFile /etc/uploadnewip/units/$unitName.conf && echo "> Config '$unitName' saved." && rm $tempFile && exit 0
-			echo ">> Failed to write config." && [ -f $tempFile ] && rm $tempFile && echo "> Cleaned up temporary files."  && exit 1
+			if [ -f /etc/uploadnewip/units/"$unitName".conf ]
+			then
+				echo ">> '$unitName.conf' already exists. Exiting..."
+				[ -f "$tempFile" ] && rm "$tempFile" && echo "> Cleaned up temporary files."  && exit 1
+			else
+				if install -g root -o "$(whoami)" -m 0600 "$tempFile" /etc/uploadnewip/units/"$unitName".conf
+				then
+					echo "> Config '$unitName' saved."
+					rm "$tempFile"
+					checkToEnableSystemdService
+					exit 0
+				else
+					echo ">> Failed to write config." && [ -f "$tempFile" ] && rm "$tempFile" && echo "> Cleaned up temporary files."  && exit 1
+				fi
+			fi
 		else
 			echo ">> Variables not set correctly. Please fix them." && sleep 1 && makeNewConfigUnit
 		fi
@@ -274,6 +279,26 @@ esac
 
 }
 
+function checkToEnableSystemdService() {
+# check to enable systemd service upon creation on a unit, if using systemd.
+
+local cont
+which systemctl > /dev/null || return 1
+[ -f /etc/systemd/system/uploadnewip ] || return 1
+if ! systemctl is-active --quiet uploadnewip
+then
+	echo "> It appears that the systemd service is not enabled."
+	read -r -p "> Would you like to enable it? [y|*] " cont
+	case "$cont" in
+		y|Y)
+			systemctl start uploadnewip || return 1
+			systemctl enable uploadnewip || return 1
+		;;
+	esac
+fi
+
+}
+
 function variableCheck() {
 # check for empty variables in config file
 
@@ -281,9 +306,9 @@ local opt users host
 opt=$@
 
 local var
-if [[ -z $unitName || -z $dbFolder || -z $dropboxAppKey ]]
+if [[ -z "$unitName" || -z "$dbFolder" || -z "$dropboxAppKey" ]]
 then
-	[ -z $opt ] && echo ">> Please fill in all required variabled -- Edit '/etc/uploadnewip/units/$configFile'." && exit 1
+	[ -z "$opt" ] && echo ">> Please fill in all required variabled -- Edit '/etc/uploadnewip/units/$configFile'." && exit 1
 	return 1
 else
 	[ ! ${#dropboxAppKey} = 64 ] && echo ">> Dropbox key invalid." && return 1
@@ -311,10 +336,10 @@ done
 for unit in $(command ls /etc/uploadnewip/units)
 do
 	count=$((count+=1))
-	if ! echo "$disabledUnitList" | grep -q -w $unit
+	if ! echo "$disabledUnitList" | grep -q -w "$unit"
 	then
 		cleanVariables
-		. "/etc/uploadnewip/units/$unit"
+		. /etc/uploadnewip/units/"$unit"
 		if variableCheck a
 		then
 			echo "> Running unit '$unit'."
@@ -340,28 +365,28 @@ currentIPPos="$serverIPFolder/currentip-$unitName.txt"
 
 if pingTest
 then
-	echo "> Checking against fresh IP from '$fetchIPServer'"
-	curl "$fetchIPServer" | cat > $tempIPPos
-	chmod 0600 $tempIPPos
-	echo "> Verifying"
+	echo "> Checking against fresh IP from '$fetchIPServer'."
+	curl "$fetchIPServer" | cat > "$tempIPPos"
+	chmod 0600 "$tempIPPos"
+	echo "> Verifying."
 
-	if [ -f $currentIPPos ]
+	if [ -f "$currentIPPos" ]
 	then
-		chk1=$(sha256sum $tempIPPos | awk '{print $1}')
-		chk2=$(sha256sum $currentIPPos | awk '{print $1}')
+		chk1=$(sha256sum "$tempIPPos" | awk '{print $1}')
+		chk2=$(sha256sum "$currentIPPos" | awk '{print $1}')
 
-		if [ "$chk1" == "$chk2" ] && [ -f $currentIPPos ]
+		if [ "$chk1" == "$chk2" ] && [ -f "$currentIPPos" ]
 		then
 			echo ">> IP address for '$unitName' hasn't changed."
 		else
 			echo "> IP address for '$unitName' has changed."
-			mv $tempIPPos $currentIPPos
-			[ -f $currentIPPos ] && uploadContinue || echo ">> Unable to find '$currentIPPos'."
+			mv "$tempIPPos" "$currentIPPos"
+			[ -f "$currentIPPos" ] && uploadContinue || echo ">> Unable to find '$currentIPPos'."
 		fi
 	else
 		echo "> Running for first time."
-		mv $tempIPPos $currentIPPos
-		[ -f $currentIPPos ] && uploadContinue || echo ">> Unable to find '$currentIPPos'."
+		mv "$tempIPPos" "$currentIPPos"
+		[ -f "$currentIPPos" ] && uploadContinue || echo ">> Unable to find '$currentIPPos'."
 	fi
 
 else
@@ -374,7 +399,7 @@ function pingTest() {
 # test internet
 
 echo "> Running a quick ping test to '$pingServer' to test internet."
-if ping -q -c 1 -W 1 $pingServer > /dev/null
+if ping -q -c 1 -W 1 "$pingServer" > /dev/null
 then
 	echo "> Internet is connected, continuing."
 	return 0
@@ -394,7 +419,7 @@ tempFile="/tmp/uploadnewip-$RANDOM-tmp"
 echo "> Updating Dropbox files..."
 echo "> Removing old IP file..."
 
-dbmkdir $dbFolder
+dbmkdir "$dbFolder"
 
 dbdelete
 
@@ -402,7 +427,7 @@ echo "> Uploading 'currentip-$unitName.txt' to Dropbox folder '$dbFolder'."
 if dbupload
 then
 	outIP=$(cat $currentIPPos)
-	[ $logging ] && echo "'$unitName' IP has updated to $outIP at $(date) (automatically)." | tee -a /var/log/uploadnewip.log
+	[ "$logging" ] && echo "'$unitName' IP has updated to $outIP at $(date) (automatically)." | tee -a /var/log/uploadnewip.log
 	echo "> Done."
 else
 	echo ">> Upload failed."
@@ -486,19 +511,19 @@ echo "> Preparing to remove '$unitFiles'."
 for unit in $unitFiles
 do
 	unitFullFileName=$unit
-	! echo $unitFullFileName | grep -q ".conf" && unitFullFileName="$unitFullFileName.conf"
-	if [ -f /etc/uploadnewip/units/$unitFullFileName ]
+	! echo "$unitFullFileName" | grep -q ".conf" && unitFullFileName="$unitFullFileName.conf"
+	if [ -f /etc/uploadnewip/units/"$unitFullFileName" ]
 	then
-		. /etc/uploadnewip/units/$unitFullFileName
+		. /etc/uploadnewip/units/"$unitFullFileName"
 		[ "$removeFromDBAfterRemoval" ] && variableCheck a && dbdelete && echo "> Removed unit data from Dropbox."
 		echo "> Removing unit config '$unit'."
-		if rm -v /etc/uploadnewip/units/$unitFullFileName
+		if rm -v /etc/uploadnewip/units/"$unitFullFileName"
 		then
 			echo "> Unit '$unit' removed."
 			echo "> Cleaning up..."
 			[ -f "/var/cache/uploadnewip/currentip-$unit.txt" ] && rm -v "/var/cache/uploadnewip/currentip-$unit.txt"
 			[ -f "/var/cache/uploadnewip/temp/temp-ip-$unit.txt" ] && rm -v "/var/cache/uploadnewip/temp/temp-ip-$unit.txt"
-			echo "> Finished removal of unit '$unit'!"
+			echo "> Finished removal of unit '$unit'."
 		else
 			echo ">> Failed to remove unit '$unit'."
 			return 1

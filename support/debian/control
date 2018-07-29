@@ -7,5 +7,5 @@ Build-Depends: debhelper (>= 9)
 
 Package: uploadnewip
 Architecture: all
-Depends: curl, bash
+Depends: curl, bash, nano, iputils-ping
 Description: Upload new dynamic public IP address of a GNU/Linux server to Dropbox every time it changes

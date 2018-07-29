@@ -6,7 +6,7 @@ BuildArch:	noarch
 License:        GPLv3
 URL:            https://gitlab.com/BobyMCbobs/%{name}
 Source0:        https://gitlab.com/BobyMCbobs/%{name}/-/archive/%{version}/%{name}-%{version}.zip
-Requires:       curl
+Requires:       curl, bash, nano, iputils
 
 
 %description
