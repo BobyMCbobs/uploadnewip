@@ -284,8 +284,8 @@ function checkToEnableSystemdService() {
 
 local cont
 which systemctl > /dev/null || return 1
-[ -f /etc/systemd/system/uploadnewip ] || return 1
-if ! systemctl is-active --quiet uploadnewip
+[ -f /etc/systemd/system/uploadnewip.service ] || return 1
+if ! systemctl is-active --quiet uploadnewip || ! systemctl is-enabled --quiet uploadnewip
 then
 	echo "> It appears that the systemd service is not enabled."
 	read -r -p "> Would you like to enable it? [y|*] " cont
