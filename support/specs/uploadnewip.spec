@@ -4,6 +4,7 @@ Release:        1%{?dist}
 Summary:        Server public IP uploader
 BuildArch:	noarch
 License:        GPL-3.0
+Group:		Productivity/Networking/System
 URL:            https://gitlab.com/BobyMCbobs/%{name}
 Source0:        https://gitlab.com/BobyMCbobs/%{name}/-/archive/%{version}/%{name}-%{version}.zip
 Requires:       curl, bash, nano, iputils
@@ -18,6 +19,9 @@ Upload new dynamic public IP address of a GNU/Linux server to Dropbox every time
 
 %prep
 %autosetup
+
+
+%build
 
 
 %install
@@ -35,7 +39,6 @@ Upload new dynamic public IP address of a GNU/Linux server to Dropbox every time
 /usr/bin/%{name}
 /usr/share/bash-completion/completions/%{name}
 /usr/lib/systemd/system/%{name}.service
-/var/log/%{name}.log
 
 
 %pre
