@@ -1,2 +1,3 @@
 rm -rf /etc/uploadnewip
 rm -rf /var/cache/uploadnewip
+rm /var/log/uploadnewip.log

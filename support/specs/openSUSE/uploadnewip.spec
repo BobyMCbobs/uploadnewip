@@ -1,12 +1,15 @@
 Name:           uploadnewip
 Version:        2.2
 Release:        1%{?dist}
-Summary:        Upload new dynamic public IP address of a GNU/Linux server to Dropbox every time it changes.
+Summary:        Server public IP uploader
 BuildArch:	noarch
-License:        GPLv3
+License:        GPL-3.0
 URL:            https://gitlab.com/BobyMCbobs/%{name}
 Source0:        https://gitlab.com/BobyMCbobs/%{name}/-/archive/%{version}/%{name}-%{version}.zip
 Requires:       curl, bash, nano, iputils
+BuildRequires:	unzip
+BuildRequires:	systemd
+%{?systemd_requires}
 
 
 %description
@@ -23,28 +26,34 @@ Upload new dynamic public IP address of a GNU/Linux server to Dropbox every time
 
 %files
 %license LICENSE
-%doc README.md LICENSE
+%doc README.md
+%config /etc/%{name}/%{name}-blank.conf
+%config /etc/%{name}/%{name}-settings.conf
+%dir /etc/%{name}
+%dir /etc/%{name}/units
+%dir /usr/lib/systemd/system/
 /usr/bin/%{name}
 /usr/share/bash-completion/completions/%{name}
-/etc/systemd/system/%{name}.service
-/etc/%{name}/%{name}-blank.conf
-/etc/%{name}/%{name}-settings.conf
-/var/log/uploadnewip.log
+/usr/lib/systemd/system/%{name}.service
+/var/log/%{name}.log
+
+
+%pre
+%service_add_pre %{name}.service
 
 
 %preun
-systemctl disable %{name}
-systemctl stop %{name}
+%systemd_preun %{name}.service
 
 
 %post
-mkdir -p /etc/uploadnewip/units
-mkdir -p /var/cache/uploadnewip/temp
+%service_add_post %{name}.service
+touch /var/log/%{name}.log
 
 
 %postun
-rm -rf /etc/uploadnewip
-rm -rf /var/cache/uploadnewip
+%service_del_postun %{name}.service
+rm /var/log/%{name}.log
 
 
 %changelog

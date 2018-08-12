@@ -9,15 +9,14 @@ install:
 	@cp -p uploadnewip $(DESTDIR)$(PREFIX)/bin
 	@cp -p uploadnewip.completion $(DESTDIR)$(COMPLETIONDIR)/uploadnewip
 	@cp uploadnewip-blank.conf $(DESTDIR)/etc/uploadnewip
-	@cp uploadnewip-settings.conf $(DESTDIR)/etc/uploadnewip
-	@touch $(DESTDIR)/var/log/uploadnewip.log
+	@cp uploadnewip-settings.conf $(DESTDIR)/etc/uploadnewip	
 	@chmod 755 $(DESTDIR)$(PREFIX)/bin/uploadnewip
 	@chmod 755 $(DESTDIR)$(COMPLETIONDIR)/uploadnewip
 	@mkdir -p $(DESTDIR)/etc/uploadnewip/units
 	@mkdir -p $(DESTDIR)/var/cache/uploadnewip/temp
 	@if [ -z $(NOSYSTEMD) ]; then \
-	mkdir -p $(DESTDIR)/etc/systemd/system; \
-	cp uploadnewip.service $(DESTDIR)/etc/systemd/system; fi;
+	mkdir -p $(DESTDIR)/usr/lib/systemd/system; \
+	cp uploadnewip.service $(DESTDIR)/usr/lib/systemd/system; fi;
 
 uninstall:
 	@rm -rf $(DESTDIR)$(PREFIX)/bin/uploadnewip
