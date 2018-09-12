@@ -5,6 +5,11 @@ uploadnewip is a way to dodge having to setup a static IP address for GNU/Linux 
 Utilising Dropbox as a middle man for storing IP addresses, uploadnewip uploads the IP address of (a) server(s) which it's installed on to as many dropbox accounts/folders as intended.  
 (This is a companion program that pairs with [getnewip](https://github.com/BobyMCbobs/getnewip))  
 
+##### Where to get it
+Ubuntu: ppa:bobymcbobs/ppa
+openSUSE, SUSE, Fedora, ScientificLinux, RHEL, CentOS: [OBS](https://software.opensuse.org/package/uploadnewip)  
+Arch Linux: [AUR](https://aur.archlinux.org/packages/uploadnewip)  
+
 ##### Features  
 - Config unit architecture. Have multiple config entries changing at once.  
 - Small footprint; Lightweight.  
@@ -17,7 +22,7 @@ Debian:
 	Source: `make deb-src`  
 CentOS/Fedora specs: support/specs/CentOS-Fedora  
 openSUSE specs: support/specs/openSUSE  
-Arch Linux: [AUR](https://aur.archlinux.org/packages/uploadnewip)  
+Arch Linux: support/arch/PKGBUILD  
 Zip archive: `make build-zip`  
 
 ##### Installation
@@ -26,7 +31,7 @@ Options:
 	Disabling systemd service installation: `make NOSYSTEMD=true install`  
 
 ##### Dependencies  
-Ubuntu/Debian/Raspbian curl bash nano iputils-ping  
+Ubuntu/Debian/Raspbian: curl bash nano iputils-ping  
 Arch Linux: curl bash nano iputils  
 Fedora/CentOS: curl bash nano iputils  
 openSUSE: curl bash nano iputils  
