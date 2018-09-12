@@ -6,7 +6,7 @@ Utilising Dropbox as a middle man for storing IP addresses, uploadnewip uploads 
 (This is a companion program that pairs with [getnewip](https://github.com/BobyMCbobs/getnewip))  
 
 ##### Where to get it
-Ubuntu: ppa:bobymcbobs/ppa
+Ubuntu: ppa:bobymcbobs/ppa  
 openSUSE, SUSE, Fedora, ScientificLinux, RHEL, CentOS: [OBS](https://software.opensuse.org/package/uploadnewip)  
 Arch Linux: [AUR](https://aur.archlinux.org/packages/uploadnewip)  
 
