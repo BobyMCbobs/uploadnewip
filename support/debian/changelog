@@ -1,6 +1,18 @@
 uploadnewip (2.2.0-1) bionic; urgency=medium
 
-  * Added 
+  * Fixed
+  * -----
+  * - systemd service starting/enabling
+  *
+  * Changed
+  * -------
+  * - Comments now are on the line before in config files
+
+ -- Caleb Woodbine <calebwoodbine.public@gmail.com>  Thu, 20 Sep 2018 11:13:16 +1200
+
+uploadnewip (2.2.0-1) bionic; urgency=medium
+
+  * Added
   * -----
   * > -v|--version for displaying version information.
   * > Extended compatibilty across distros (Ubuntu, Debian, Raspbian, Fedora, CentOS, openSUSE (Leap & Tumbleweed).  
