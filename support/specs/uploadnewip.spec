@@ -1,5 +1,5 @@
 Name:           uploadnewip
-Version:        2.2
+Version:        2.2.1
 Release:        1%{?dist}
 Summary:        Server public IP uploader
 BuildArch:	noarch

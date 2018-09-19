@@ -1,5 +1,7 @@
 # uploadnewip  
 
+#### Release version: 2.2.1
+
 ##### Description  
 uploadnewip is a way to dodge having to setup a static IP address for GNU/Linux devices.  
 Utilising Dropbox as a middle man for storing IP addresses, uploadnewip uploads the IP address of (a) server(s) which it's installed on to as many dropbox accounts/folders as intended.  

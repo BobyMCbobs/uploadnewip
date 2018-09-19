@@ -1,6 +1,6 @@
 # Maintainer: Caleb Woodbine <gitlab.com/BobyMCbobs>
 pkgname=uploadnewip
-pkgver=2.2
+pkgver=2.2.1
 pkgrel=1
 pkgdesc="Upload new dynamic public IP address of a GNU/Linux server to Dropbox every time it changes."
 arch=('any')
